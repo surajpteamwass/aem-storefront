@@ -1,7 +1,0 @@
-mountpoints:
-  /:
-    url: https://content.da.live/surajpteamwass/aem-storefront/
-    type: markup
-
-folders:
-  /products/: /products/default
