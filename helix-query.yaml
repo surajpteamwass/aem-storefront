@@ -52,7 +52,7 @@ indices:
         select: head > meta[name="enrichment-positions"]
         values: |
           match(attribute(el, 'content'), '([^,]+)')
-  content:¯
+  content:
     target: /content-index.json
     exclude:
       - '/blog/index'
