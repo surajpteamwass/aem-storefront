@@ -151,3 +151,8 @@ jobs:
               comment_id: existingComment.id,
             });
           }
+          
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
