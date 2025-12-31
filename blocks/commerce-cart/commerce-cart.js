@@ -7,6 +7,7 @@ import {
   Icon,
   Button,
   provider as UI,
+  Price,
 } from '@dropins/tools/components.js';
 
 // Dropin Containers
@@ -20,7 +21,7 @@ import { render as wishlistRender } from '@dropins/storefront-wishlist/render.js
 import { WishlistToggle } from '@dropins/storefront-wishlist/containers/WishlistToggle.js';
 import { WishlistAlert } from '@dropins/storefront-wishlist/containers/WishlistAlert.js';
 import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
-
+import { OrderSummaryLine } from '@dropins/storefront-cart/containers/OrderSummaryLine.js';
 // API
 import { publishShoppingCartViewEvent } from '@dropins/storefront-cart/api.js';
 
@@ -36,6 +37,19 @@ import { readBlockConfig } from '../../scripts/aem.js';
 import { fetchPlaceholders, rootLink, getProductLink } from '../../scripts/commerce.js';
 
 export default async function decorate(block) {
+  const DROPDOWN_MAX_QUANTITY = 20;
+
+  const dropdownOptions = Array.from(
+    { length: parseInt(DROPDOWN_MAX_QUANTITY, 10) },
+    (_, i) => {
+        const quantityOption = i + 1;
+        return {
+          value: `${quantityOption}`,
+          text: `${quantityOption}`,
+        };
+    }
+  );
+
   // Configuration
   const {
     'hide-heading': hideHeading = 'false',
@@ -48,6 +62,8 @@ export default async function decorate(block) {
     'checkout-url': checkoutURL = '',
     'enable-updating-product': enableUpdatingProduct = 'false',
     'undo-remove-item': undo = 'false',
+    'show-discount': showDiscount = 'false',
+    'show-savings': showSavings = 'false',
   } = readBlockConfig(block);
 
   const placeholders = await fetchPlaceholders();
@@ -182,6 +198,10 @@ export default async function decorate(block) {
       enableUpdateItemQuantity: enableUpdateItemQuantity === 'true',
       enableRemoveItem: enableRemoveItem === 'true',
       undo: undo === 'true',
+      quantityType: 'dropdown',
+      dropdownOptions,
+      showDiscount: showDiscount === 'true',
+      showSavings: showSavings === 'true',
       slots: {
         Thumbnail: (ctx) => {
           const { item, defaultImageProps } = ctx;
@@ -247,7 +267,51 @@ export default async function decorate(block) {
           })(giftOptions);
 
           ctx.appendChild(giftOptions);
+
+          // Runs on mount
+          const wrapper = document.createElement('div');
+          ctx.appendChild(wrapper);
+
+          // Append Product Promotions on every update
+          ctx.onChange((next) => {
+          wrapper.innerHTML = '';
+
+            next.item?.discount?.label?.forEach((label) => {
+              const discount = document.createElement('div');
+              discount.style.color = '#3d3d3d';
+              discount.innerText = label;
+              wrapper.appendChild(discount);
+            });
+          });
         },
+
+        ProductAttributes: (ctx) => {
+          // Prepend Product Attributes
+          const ProductAttributes = ctx.item?.productAttributes;
+     
+          ProductAttributes?.forEach((attr) => {
+            console.log('attr', attr);
+            if(attr.code === "Shipping Notes") {
+              
+              if(attr.selected_options) {
+                const selectedOptions = attr.selected_options
+                .filter((option) => option.label.trim() !== '')
+                .map((option) => option.label)
+                .join(', ');
+     
+                if(selectedOptions) {
+                  const productAttribute = document.createElement('div');
+                  productAttribute.innerText = `${attr.code}: ${selectedOptions}`;
+                  ctx.appendChild(productAttribute);
+                }
+              } else if (attr.value) {
+                const productAttribute = document.createElement('div');
+                productAttribute.innerText = `${attr.code}: ${attr.value}`;
+                ctx.appendChild(productAttribute);
+              }
+            }
+          })     
+        }
       },
     })($list),
 
@@ -255,11 +319,55 @@ export default async function decorate(block) {
     provider.render(OrderSummary, {
       routeProduct: createProductLink,
       routeCheckout: checkoutURL ? () => rootLink(checkoutURL) : undefined,
+      showTotalSaved: 'true',
+      updateLineItems: (lineItems) => {
+        const totalsIndex = lineItems.map(item => item.key).indexOf('taxContent');
+        const taxContent = lineItems.splice(totalsIndex, 1)[0];
+        const subtotalIndex = lineItems.map(item => item.key).indexOf('subTotalContent');
+        const subTotalContent = lineItems.splice(subtotalIndex, 1)[0];
+        lineItems.push({
+          key: 'subtotalTaxGrouped',
+          sortOrder: 100,
+          title: 'Subtotal and Tax',
+          content: [
+            taxContent,
+            subTotalContent
+          ],
+        });
+
+        // const totalFpt = lineItems.reduce((allItemsFpt, item) => {
+        //   const itemFpt = item.fixedProductTaxes.reduce((accumulator, fpt) => {
+        //     accumulator.labels.push(fpt.label);
+        //     accumulator.total += fpt.amount.value;
+        //     return accumulator;
+        //   }, {
+        //     labels: [],
+        //     total: 0
+        //   });
+        //   allItemsFpt.labels = [...allItemsFpt.labels, ...itemFpt.labels];
+        //   allItemsFpt.total += itemFpt.total;
+        //   return allItemsFpt;
+        // }, {
+        //   labels: [],
+        //   total: 0
+        // });
+      
+        lineItems.push({
+          key: 'fpt',
+          sortOrder: 350,
+          title: 'Fixed Product Tax',
+          content: OrderSummaryLine({label: "FPT(" + 'test' + ')', price: Price({amount: 20}), classSuffix: 'fpt'})
+        })
+      
+        return lineItems;
+      },
       slots: {
         EstimateShipping: async (ctx) => {
           if (enableEstimateShipping === 'true') {
             const wrapper = document.createElement('div');
-            await provider.render(EstimateShipping, {})(wrapper);
+            await provider.render(EstimateShipping, {
+              showDefaultEstimatedShippingCost: true,
+            })(wrapper);
             ctx.replaceWith(wrapper);
           }
         },
