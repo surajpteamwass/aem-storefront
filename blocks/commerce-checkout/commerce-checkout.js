@@ -1,5 +1,4 @@
 /* eslint-disable import/no-unresolved */
-import { readBlockConfig } from '../../scripts/aem.js';
 
 // Dropin Tools
 import { events } from '@dropins/tools/event-bus.js';
@@ -22,6 +21,7 @@ import {
 
 // Payment Services Dropin
 import { PaymentMethodCode } from '@dropins/storefront-payment-services/api.js';
+import { readBlockConfig } from '../../scripts/aem.js';
 import { getUserTokenCookie } from '../../scripts/initializers/index.js';
 
 // Block Utilities
@@ -108,13 +108,12 @@ async function fetchPickupLocations() {
           total_count
         }
       }`,
-      { method: 'GET', cache: 'no-cache' }
+      { method: 'GET', cache: 'no-cache' },
     )
     .then((res) => res.data.pickupLocations.items);
 }
 
 export default async function decorate(block) {
-  
   // Configuration
   const {
     'enable-guest-checkout': enableGuestCheckout = 'false',
@@ -173,16 +172,14 @@ export default async function decorate(block) {
   const $placeOrder = getElement(selectors.checkout.placeOrder);
   const $giftOptions = getElement(selectors.checkout.giftOptions);
   const $termsAndConditions = getElement(selectors.checkout.termsAndConditions);
-  
 
-  const $deliveryButton = getElement(selectors.checkout.deliveryButton) || 
-  checkoutFragment.querySelector('.checkout-delivery-method__delivery-button');
+  const $deliveryButton = getElement(selectors.checkout.deliveryButton)
+  || checkoutFragment.querySelector('.checkout-delivery-method__delivery-button');
   const $inStorePickupButton = getElement(selectors.checkout.inStorePickupButton);
   const $inStorePickup = getElement(selectors.checkout.inStorePickup);
   $inStorePickup.style.display = 'none'; // Hide by default, show delivery when toggled
   block.appendChild(checkoutFragment);
 
-  
   // Create validation and place order handlers
   const handleValidation = () => {
     let success = true;
@@ -298,7 +295,7 @@ export default async function decorate(block) {
       selected: true,
       onChange: () => onToggle('delivery'),
     })($deliveryButton),
-    
+
     UI.render(ToggleButton, {
       label: 'In-store Pickup',
       selected: false,
@@ -333,13 +330,13 @@ export default async function decorate(block) {
 
   events.on('checkout/updated', (data) => {
     const selectedShippingMethod = data?.shippingAddresses?.[0]?.selectedShippingMethod;
-    
+
     if (selectedShippingMethod) {
-      const isPickupMethod = selectedShippingMethod.title?.toLowerCase().includes('pickup') || 
-                             selectedShippingMethod.title?.toLowerCase().includes('store') ||
-                             selectedShippingMethod.method_code?.toLowerCase().includes('pickup') ||
-                             selectedShippingMethod.code?.toLowerCase().includes('pickup');
-      
+      const isPickupMethod = selectedShippingMethod.title?.toLowerCase().includes('pickup')
+                             || selectedShippingMethod.title?.toLowerCase().includes('store')
+                             || selectedShippingMethod.method_code?.toLowerCase().includes('pickup')
+                             || selectedShippingMethod.code?.toLowerCase().includes('pickup');
+
       if (isPickupMethod) {
         // Only toggle if not already in pickup mode
         if (inStorePickupButton?.getProps?.()?.selected !== true) {
@@ -348,27 +345,27 @@ export default async function decorate(block) {
       }
     }
   });
-  
+
   const pickupLocations = await fetchPickupLocations();
 
-    pickupLocations.forEach((location) => {
-      const { name, pickup_location_code } = location;
-      const locationRadiobutton = document.createElement('div');
+  pickupLocations.forEach((location) => {
+    const { name, pickupLocationCode } = location;
+    const locationRadiobutton = document.createElement('div');
 
-      UI.render(RadioButton, {
-        label: name,
-        name: 'pickup-location',
-        value: name,
-        onChange: () => {
-          checkoutApi.setShippingAddress({
-            address: {},
-            pickupLocationCode: pickup_location_code,
-          });
-        },
-      })(locationRadiobutton);
+    UI.render(RadioButton, {
+      label: name,
+      name: 'pickup-location',
+      value: name,
+      onChange: () => {
+        checkoutApi.setShippingAddress({
+          address: {},
+          pickupLocationCode,
+        });
+      },
+    })(locationRadiobutton);
 
-      $inStorePickup.appendChild(locationRadiobutton);
-    });
+    $inStorePickup.appendChild(locationRadiobutton);
+  });
 
   async function displayEmptyCart() {
     if (emptyCart) return;
