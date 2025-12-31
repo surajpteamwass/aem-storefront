@@ -100,11 +100,11 @@
 }
 
 .block.product-list-page .page-size-select:hover {
-    border-color: var(--color-brand-500, #0066cc);
+    border-color: var(--color-brand-500, #06c);
 }
 
 .block.product-list-page .page-size-select:focus {
-    outline: 2px solid var(--color-brand-500, #0066cc);
+    outline: 2px solid var(--color-brand-500, #06c);
     outline-offset: 2px;
 }
 
