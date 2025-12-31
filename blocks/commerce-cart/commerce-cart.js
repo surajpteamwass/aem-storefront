@@ -42,12 +42,12 @@ export default async function decorate(block) {
   const dropdownOptions = Array.from(
     { length: parseInt(DROPDOWN_MAX_QUANTITY, 10) },
     (_, i) => {
-        const quantityOption = i + 1;
-        return {
-          value: `${quantityOption}`,
-          text: `${quantityOption}`,
-        };
-    }
+      const quantityOption = i + 1;
+      return {
+        value: `${quantityOption}`,
+        text: `${quantityOption}`,
+      };
+    },
   );
 
   // Configuration
@@ -274,7 +274,7 @@ export default async function decorate(block) {
 
           // Append Product Promotions on every update
           ctx.onChange((next) => {
-          wrapper.innerHTML = '';
+            wrapper.innerHTML = '';
 
             next.item?.discount?.label?.forEach((label) => {
               const discount = document.createElement('div');
@@ -288,18 +288,16 @@ export default async function decorate(block) {
         ProductAttributes: (ctx) => {
           // Prepend Product Attributes
           const ProductAttributes = ctx.item?.productAttributes;
-     
+
           ProductAttributes?.forEach((attr) => {
-            console.log('attr', attr);
-            if(attr.code === "Shipping Notes") {
-              
-              if(attr.selected_options) {
+            if (attr.code === 'Shipping Notes') {
+              if (attr.selected_options) {
                 const selectedOptions = attr.selected_options
-                .filter((option) => option.label.trim() !== '')
-                .map((option) => option.label)
-                .join(', ');
-     
-                if(selectedOptions) {
+                  .filter((option) => option.label.trim() !== '')
+                  .map((option) => option.label)
+                  .join(', ');
+
+                if (selectedOptions) {
                   const productAttribute = document.createElement('div');
                   productAttribute.innerText = `${attr.code}: ${selectedOptions}`;
                   ctx.appendChild(productAttribute);
@@ -310,8 +308,8 @@ export default async function decorate(block) {
                 ctx.appendChild(productAttribute);
               }
             }
-          })     
-        }
+          });
+        },
       },
     })($list),
 
@@ -321,9 +319,9 @@ export default async function decorate(block) {
       routeCheckout: checkoutURL ? () => rootLink(checkoutURL) : undefined,
       showTotalSaved: 'true',
       updateLineItems: (lineItems) => {
-        const totalsIndex = lineItems.map(item => item.key).indexOf('taxContent');
+        const totalsIndex = lineItems.map((item) => item.key).indexOf('taxContent');
         const taxContent = lineItems.splice(totalsIndex, 1)[0];
-        const subtotalIndex = lineItems.map(item => item.key).indexOf('subTotalContent');
+        const subtotalIndex = lineItems.map((item) => item.key).indexOf('subTotalContent');
         const subTotalContent = lineItems.splice(subtotalIndex, 1)[0];
         lineItems.push({
           key: 'subtotalTaxGrouped',
@@ -331,34 +329,17 @@ export default async function decorate(block) {
           title: 'Subtotal and Tax',
           content: [
             taxContent,
-            subTotalContent
+            subTotalContent,
           ],
         });
 
-        // const totalFpt = lineItems.reduce((allItemsFpt, item) => {
-        //   const itemFpt = item.fixedProductTaxes.reduce((accumulator, fpt) => {
-        //     accumulator.labels.push(fpt.label);
-        //     accumulator.total += fpt.amount.value;
-        //     return accumulator;
-        //   }, {
-        //     labels: [],
-        //     total: 0
-        //   });
-        //   allItemsFpt.labels = [...allItemsFpt.labels, ...itemFpt.labels];
-        //   allItemsFpt.total += itemFpt.total;
-        //   return allItemsFpt;
-        // }, {
-        //   labels: [],
-        //   total: 0
-        // });
-      
         lineItems.push({
           key: 'fpt',
           sortOrder: 350,
           title: 'Fixed Product Tax',
-          content: OrderSummaryLine({label: "FPT(" + 'test' + ')', price: Price({amount: 20}), classSuffix: 'fpt'})
-        })
-      
+          content: OrderSummaryLine({ label: 'FPT( TEST )', price: Price({ amount: 20 }), classSuffix: 'fpt' }),
+        });
+
         return lineItems;
       },
       slots: {
