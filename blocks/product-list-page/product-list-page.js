@@ -67,7 +67,7 @@ export default async function decorate(block) {
     filter,
     pageSize,
   } = Object.fromEntries(urlParams.entries());
-  
+
   const defaultPageSize = 8;
   const currentPageSize = pageSize ? Number(pageSize) : defaultPageSize;
 
@@ -129,16 +129,16 @@ export default async function decorate(block) {
   const createPageSizeDropdown = () => {
     const wrapper = document.createElement('div');
     wrapper.className = 'page-size-dropdown';
-    
+
     const label = document.createElement('label');
     label.className = 'page-size-label';
     label.textContent = labels.Global?.ItemsPerPage || 'Items per page:';
     label.setAttribute('for', 'page-size-select');
-    
+
     const select = document.createElement('select');
     select.id = 'page-size-select';
     select.className = 'page-size-select';
-    
+
     pageSizeOptions.forEach((size) => {
       const option = document.createElement('option');
       option.value = size;
@@ -146,7 +146,7 @@ export default async function decorate(block) {
       option.selected = size === currentPageSize;
       select.appendChild(option);
     });
-    
+
     select.addEventListener('change', (e) => {
       const newPageSize = Number(e.target.value);
       const url = new URL(window.location.href);
@@ -154,12 +154,12 @@ export default async function decorate(block) {
       url.searchParams.set('page', '1'); // Reset to first page when changing page size
       window.location.href = url.toString();
     });
-    
+
     wrapper.appendChild(label);
     wrapper.appendChild(select);
     return wrapper;
   };
-  
+
   $productPageSize.appendChild(createPageSizeDropdown());
 
   await Promise.all([

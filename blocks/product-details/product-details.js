@@ -33,12 +33,14 @@ import {
   getProductLink,
 } from '../../scripts/commerce.js';
 
+// Cart Dropin
+import GiftOptions from '@dropins/storefront-cart/containers/GiftOptions.js';
+import { render as CartProvider } from '@dropins/storefront-cart/render.js';
+
 // Initializers
 import { IMAGES_SIZES } from '../../scripts/initializers/pdp.js';
 import '../../scripts/initializers/cart.js';
 import '../../scripts/initializers/wishlist.js';
-import GiftOptions from '@dropins/storefront-cart/containers/GiftOptions.js';
-import { render as CartProvider } from '@dropins/storefront-cart/render.js';
 
 /**
  * Checks if the page has prerendered product JSON-LD data
@@ -92,8 +94,8 @@ export default async function decorate(block) {
       // If optionsUIDs exist, also match those to ensure correct variant
       if (product.optionsUIDs && el.selectedOptionsUIDs) {
         const elOptionUIDs = Object.values(el.selectedOptionsUIDs);
-        return product.optionsUIDs.every(uid => elOptionUIDs.includes(uid)) &&
-              product.optionsUIDs.length === elOptionUIDs.length;
+        return product.optionsUIDs.every((uid) => elOptionUIDs.includes(uid))
+              && product.optionsUIDs.length === elOptionUIDs.length;
       }
       return true;
     }
@@ -244,7 +246,7 @@ export default async function decorate(block) {
         }
       },
     })($giftOptions),
-    
+
     // Description
     pdpRendered.render(ProductDescription, {})($description),
 
@@ -310,7 +312,7 @@ export default async function decorate(block) {
           );
           // await addProductsToCart([{ ...values }]);
           const addResponse = await addProductsToCart([{ ...values }]);
-          
+
           const updatedGiftOptions = JSON.parse(
             sessionStorage.getItem('updatedGiftOptions'),
           );
@@ -318,7 +320,9 @@ export default async function decorate(block) {
           if (!updatedGiftOptions || !addResponse) return;
 
           // Wait for cart to be persisted (small delay to ensure cart/data event is processed)
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => {
+            setTimeout(resolve, 100);
+          });
 
           // Get the latest cart data from sessionStorage
           const latestCartData = JSON.parse(
@@ -338,8 +342,8 @@ export default async function decorate(block) {
               // If optionsUIDs exist, also match those to ensure correct variant
               if (values.optionsUIDs && el.selectedOptionsUIDs) {
                 const elOptionUIDs = Object.values(el.selectedOptionsUIDs);
-                return values.optionsUIDs.every(uid => elOptionUIDs.includes(uid)) &&
-                      values.optionsUIDs.length === elOptionUIDs.length;
+                return values.optionsUIDs.every((uid) => elOptionUIDs.includes(uid))
+                      && values.optionsUIDs.length === elOptionUIDs.length;
               }
               return true;
             }
