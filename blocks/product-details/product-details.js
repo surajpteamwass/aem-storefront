@@ -25,6 +25,10 @@ import ProductAttributes from '@dropins/storefront-pdp/containers/ProductAttribu
 import ProductGallery from '@dropins/storefront-pdp/containers/ProductGallery.js';
 import ProductGiftCardOptions from '@dropins/storefront-pdp/containers/ProductGiftCardOptions.js';
 
+// Cart Dropin
+import GiftOptions from '@dropins/storefront-cart/containers/GiftOptions.js';
+import { render as CartProvider } from '@dropins/storefront-cart/render.js';
+
 // Libs
 import {
   rootLink,
@@ -32,10 +36,6 @@ import {
   fetchPlaceholders,
   getProductLink,
 } from '../../scripts/commerce.js';
-
-// Cart Dropin
-import GiftOptions from '@dropins/storefront-cart/containers/GiftOptions.js';
-import { render as CartProvider } from '@dropins/storefront-cart/render.js';
 
 // Initializers
 import { IMAGES_SIZES } from '../../scripts/initializers/pdp.js';
