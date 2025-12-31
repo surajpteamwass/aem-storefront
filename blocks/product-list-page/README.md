@@ -20,9 +20,9 @@ The Product List Page block provides a comprehensive product discovery interface
 - `filter` - Filter parameters in format `attribute:value` separated by `|` (e.g., `categoryPath:shoes|price:10-50`). Supports array values (comma-separated), range values (dash-separated), and single values
 - `pageSize` - Number of items per page (default: 8, options: 8, 12, 24, 48)
 
-### Local Storage
+<!-- ### Local Storage
 
-No localStorage keys are used by this block.
+No localStorage keys are used by this block. -->
 
 ### Events
 
