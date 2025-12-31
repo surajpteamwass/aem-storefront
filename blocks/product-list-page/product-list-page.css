@@ -6,7 +6,7 @@
         "result-info"
         "view-facets"
         "facets"
-        "product-sort"
+        "product-controls"
         "product-list"
         "pagination";
 }
@@ -60,9 +60,52 @@
     display: block;
 }
 
-.block.product-list-page .search__product-sort {
-    grid-area: product-sort;
+.block.product-list-page .search__product-controls {
+    grid-area: product-controls;
     margin-block-end: var(--spacing-small);
+    display: flex;
+    gap: var(--spacing-small);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.block.product-list-page .search__product-sort {
+    flex: 0 0 auto;
+}
+
+.block.product-list-page .search__product-page-size {
+    flex: 0 0 auto;
+}
+
+.block.product-list-page .page-size-dropdown {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xxsmall);
+}
+
+.block.product-list-page .page-size-label {
+    font-size: 0.9em;
+    color: var(--color-neutral-700, #666);
+    white-space: nowrap;
+}
+
+.block.product-list-page .page-size-select {
+    padding: 0.5em 1em;
+    border: 1px solid var(--color-neutral-300, #ddd);
+    border-radius: 4px;
+    background-color: var(--color-neutral-100, #fff);
+    font-size: 0.9em;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+.block.product-list-page .page-size-select:hover {
+    border-color: var(--color-brand-500, #06c);
+}
+
+.block.product-list-page .page-size-select:focus {
+    outline: 2px solid var(--color-brand-500, #06c);
+    outline-offset: 2px;
 }
 
 .block.product-list-page .search__product-list {
@@ -92,7 +135,7 @@
 .block.product-list-page.product-list-page--empty .search__result-info,
 .block.product-list-page.product-list-page--empty .search__view-facets,
 .block.product-list-page.product-list-page--empty .search__facets,
-.block.product-list-page.product-list-page--empty .search__product-sort,
+.block.product-list-page.product-list-page--empty .search__product-controls,
 .block.product-list-page.product-list-page--empty .search__pagination {
     display: none;
 }
@@ -101,7 +144,7 @@
 @media only screen and (min-width: 768px) {
     .block.product-list-page .search__wrapper {
         grid-template-areas:
-            "result-info product-sort"
+            "result-info product-controls"
             "facets product-list"
             ". pagination";
         grid-template-columns: 270px 1fr;
@@ -116,8 +159,10 @@
         margin-right: var(--spacing-small);
     }
 
-    .block.product-list-page .search__product-sort {
+    .block.product-list-page .search__product-controls {
         display: flex;
         justify-content: flex-end;
+        align-items: center;
+        gap: var(--spacing-small);
     }
 }
