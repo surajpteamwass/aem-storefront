@@ -37,6 +37,8 @@ import {
 import { IMAGES_SIZES } from '../../scripts/initializers/pdp.js';
 import '../../scripts/initializers/cart.js';
 import '../../scripts/initializers/wishlist.js';
+import GiftOptions from '@dropins/storefront-cart/containers/GiftOptions.js';
+import { render as CartProvider } from '@dropins/storefront-cart/render.js';
 
 /**
  * Checks if the page has prerendered product JSON-LD data
@@ -82,6 +84,22 @@ export default async function decorate(block) {
   // State to track if we are in update mode
   let isUpdateMode = false;
 
+  const cartItem = JSON.parse(
+    sessionStorage.getItem('DROPIN__CART__CART__DATA'),
+  )?.items?.find((el) => {
+    // Match by topLevelSku for configurable products
+    if (el.topLevelSku === product.sku) {
+      // If optionsUIDs exist, also match those to ensure correct variant
+      if (product.optionsUIDs && el.selectedOptionsUIDs) {
+        const elOptionUIDs = Object.values(el.selectedOptionsUIDs);
+        return product.optionsUIDs.every(uid => elOptionUIDs.includes(uid)) &&
+              product.optionsUIDs.length === elOptionUIDs.length;
+      }
+      return true;
+    }
+    // Match by sku for simple products
+    return el.sku === product.sku;
+  });
   // Layout
   const fragment = document.createRange().createContextualFragment(`
     <div class="product-details__alert"></div>
@@ -98,6 +116,7 @@ export default async function decorate(block) {
         <div class="product-details__configuration">
           <div class="product-details__options"></div>
           <div class="product-details__quantity"></div>
+          <div class="product-details__gift-options"></div>
           <div class="product-details__buttons">
             <div class="product-details__buttons__add-to-cart"></div>
             <div class="product-details__buttons__add-to-wishlist"></div>
@@ -118,6 +137,7 @@ export default async function decorate(block) {
   const $options = fragment.querySelector('.product-details__options');
   const $quantity = fragment.querySelector('.product-details__quantity');
   const $giftCardOptions = fragment.querySelector('.product-details__gift-card-options');
+  const $giftOptions = fragment.querySelector('.product-details__gift-options');
   const $addToCart = fragment.querySelector('.product-details__buttons__add-to-cart');
   const $wishlistToggleBtn = fragment.querySelector('.product-details__buttons__add-to-wishlist');
   const $description = fragment.querySelector('.product-details__description');
@@ -213,6 +233,18 @@ export default async function decorate(block) {
     // Configuration  Gift Card Options
     pdpRendered.render(ProductGiftCardOptions, {})($giftCardOptions),
 
+    // Gift Options
+    CartProvider.render(GiftOptions, {
+      item: cartItem ?? null,
+      view: 'product',
+      onGiftOptionsChange: async (data) => {
+        console.info('onGiftOptionsChange :>> ', data);
+        if (data) {
+          sessionStorage.setItem('updatedGiftOptions', JSON.stringify(data));
+        }
+      },
+    })($giftOptions),
+    
     // Description
     pdpRendered.render(ProductDescription, {})($description),
 
@@ -273,10 +305,79 @@ export default async function decorate(block) {
             return;
           }
           // --- Add new item ---
-          const { addProductsToCart } = await import(
+          const { addProductsToCart, updateProductsFromCart } = await import(
             '@dropins/storefront-cart/api.js'
           );
-          await addProductsToCart([{ ...values }]);
+          // await addProductsToCart([{ ...values }]);
+          const addResponse = await addProductsToCart([{ ...values }]);
+          
+          const updatedGiftOptions = JSON.parse(
+            sessionStorage.getItem('updatedGiftOptions'),
+          );
+
+          if (!updatedGiftOptions || !addResponse) return;
+
+          // Wait for cart to be persisted (small delay to ensure cart/data event is processed)
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+          // Get the latest cart data from sessionStorage
+          const latestCartData = JSON.parse(
+            sessionStorage.getItem('DROPIN__CART__CART__DATA'),
+          );
+
+          if (!latestCartData || !latestCartData.items) {
+            console.error('Cart data not available after adding product');
+            return;
+          }
+
+          // For configurable products, match by topLevelSku and optionsUIDs
+          // For simple products, match by sku
+          const dropinCartData = latestCartData.items.find((el) => {
+            // Match by topLevelSku for configurable products
+            if (el.topLevelSku === values.sku) {
+              // If optionsUIDs exist, also match those to ensure correct variant
+              if (values.optionsUIDs && el.selectedOptionsUIDs) {
+                const elOptionUIDs = Object.values(el.selectedOptionsUIDs);
+                return values.optionsUIDs.every(uid => elOptionUIDs.includes(uid)) &&
+                      values.optionsUIDs.length === elOptionUIDs.length;
+              }
+              return true;
+            }
+            // Match by sku for simple products
+            return el.sku === values.sku;
+          });
+
+          if (!dropinCartData) {
+            console.error(`Product not found in cart. SKU: ${values.sku}, OptionsUIDs:`, values.optionsUIDs);
+            return;
+          }
+
+          const {
+            recipientName,
+            senderName,
+            message,
+            giftWrappingId,
+            isGiftWrappingSelected,
+          } = updatedGiftOptions;
+
+          const giftOptions = {
+            gift_message: {
+              to: recipientName,
+              from: senderName,
+              message,
+            },
+            gift_wrapping_id: isGiftWrappingSelected
+              ? giftWrappingId
+              : null,
+          };
+
+          await updateProductsFromCart([
+            {
+              uid: dropinCartData.uid,
+              quantity: dropinCartData.quantity,
+              giftOptions,
+            },
+          ]);
         }
 
         // reset any previous alerts if successful
@@ -305,6 +406,7 @@ export default async function decorate(block) {
         // Re-enable button
         addToCart.setProps((prev) => ({
           ...prev,
+          children: labels.PDP?.Product?.AddToCart?.label,
           disabled: false,
         }));
       }
