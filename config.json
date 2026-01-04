@@ -37,6 +37,30 @@
             "rootCategory": "2"
           }
         }
+      },
+      "/en-ca/": {
+        "headers": {
+          "all": {
+            "Store": "en-ca"
+          },
+          "cs": {
+            "Magento-Store-Code": "main_website_store",
+            "Magento-Website-Code": "base",
+            "Magento-Store-View-Code": "en_ca"
+          }
+        }
+      },
+      "/fr-ca/": {
+        "headers": {
+          "all": {
+            "Store": "fr-ca"
+          },
+          "cs": {
+            "Magento-Store-Code": "main_website_store",
+            "Magento-Website-Code": "base",
+            "Magento-Store-View-Code": "fr_ca"
+          }
+        }
       }
     }
   }

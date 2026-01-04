@@ -4,4 +4,6 @@ mountpoints:
     type: markup
 
 folders:
-  /products/: /products/default
+  /en/products/: /en/products/default
+  /en-ca/products/: /en-ca/products/default
+  /fr-ca/products/: /fr-ca/products/default
