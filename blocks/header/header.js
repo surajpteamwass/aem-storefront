@@ -7,7 +7,8 @@ import { loadFragment } from '../fragment/fragment.js';
 import { fetchPlaceholders, getProductLink, rootLink } from '../../scripts/commerce.js';
 
 import renderAuthCombine from './renderAuthCombine.js';
-import { renderAuthDropdown } from './renderAuthDropdown.js';
+// import { renderAuthDropdown } from './renderAuthDropdown.js';
+import { renderAuthDropdownNew as renderAuthDropdown } from './renderAuthDropdownNew.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');

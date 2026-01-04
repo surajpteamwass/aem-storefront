@@ -1,0 +1,229 @@
+main .commerce-company-create-account-container {
+    max-width: 800px;
+    margin: 40px auto;
+    width: 100%;
+    padding: 0 var(--spacing-medium);
+}
+
+.commerce-company-create-account-container .company-account-form-section {
+    display: block;
+}
+
+.commerce-company-create-account-container .company-account-form-section[hidden] {
+    display: none;
+}
+
+.commerce-company-create-account-container .super-user-form-section {
+    display: block;
+    visibility: visible;
+    opacity: 1;
+}
+
+.commerce-company-create-account-container .super-user-form-section[hidden] {
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.commerce-company-create-account-container .company-admin-form {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--spacing-large);
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.commerce-company-create-account-container .company-admin-form .form-section {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.commerce-company-create-account-container .company-admin-form .form-field {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--spacing-xsmall);
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.commerce-company-create-account-container .company-admin-form .form-field input,
+.commerce-company-create-account-container .company-admin-form .form-field select,
+.commerce-company-create-account-container .company-admin-form .form-field label {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.company-create-account-header {
+    margin-bottom: var(--spacing-large);
+}
+
+.company-create-account-header h2 {
+    font: var(--type-headline-2-default-font);
+    letter-spacing: var(--type-headline-2-default-letter-spacing);
+    margin-bottom: var(--spacing-medium);
+}
+
+.account-type-tabs {
+    display: flex;
+    gap: var(--spacing-small);
+    margin-bottom: var(--spacing-medium);
+}
+
+.company-create-account-content {
+    margin-top: var(--spacing-large);
+}
+
+.company-account-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+    padding: var(--spacing-medium);
+    background: var(--background-color);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--shape-border-radius-2);
+}
+
+.form-section h3 {
+    font: var(--type-headline-3-default-font);
+    letter-spacing: var(--type-headline-3-default-letter-spacing);
+    margin-bottom: var(--spacing-small);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xsmall);
+}
+
+.form-field label {
+    font: var(--type-body-1-strong-font);
+    letter-spacing: var(--type-body-1-strong-letter-spacing);
+}
+
+.form-field .required {
+    color: var(--color-error-700);
+}
+
+.form-field input,
+.form-field select {
+    padding: var(--spacing-xsmall) var(--spacing-small);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--shape-border-radius-1);
+    font: var(--type-body-1-default-font);
+    letter-spacing: var(--type-body-1-default-letter-spacing);
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    outline: 2px solid var(--color-brand-700);
+    outline-offset: 2px;
+}
+
+.form-field input:invalid:not(:placeholder-shown),
+.form-field select:invalid:not(:placeholder-shown) {
+    border-color: var(--color-error-700);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-medium);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-medium);
+    margin-top: var(--spacing-medium);
+}
+
+.error-message {
+    padding: var(--spacing-medium);
+    background: var(--color-error-50, #fee);
+    border: 1px solid var(--color-error-700, #c00);
+    border-radius: var(--shape-border-radius-1);
+    color: var(--color-error-700, #c00);
+    margin-bottom: var(--spacing-medium);
+    font: var(--type-body-1-default-font);
+}
+
+.btn-secondary,
+.btn-primary {
+    padding: var(--spacing-small) var(--spacing-medium);
+    background: var(--color-brand-700) !important;
+    color: var(--color-neutral-100) !important;
+    border: none !important;
+    border-radius: var(--shape-border-radius-1);
+    font: var(--type-body-1-strong-font);
+    letter-spacing: var(--type-body-1-strong-letter-spacing);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    position: relative;
+    z-index: 10;
+    opacity: 1 !important;
+}
+
+.btn-secondary:hover,
+.btn-primary:hover {
+    background: var(--color-brand-800) !important;
+    color: var(--color-neutral-100) !important;
+    z-index: 11;
+    opacity: 1 !important;
+}
+
+.btn-secondary:active,
+.btn-primary:active {
+    background: var(--color-brand-900) !important;
+    color: var(--color-neutral-100) !important;
+}
+
+.btn-secondary:disabled,
+.btn-primary:disabled {
+    background: var(--color-neutral-400) !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-primary {
+    background: var(--color-brand-700) !important;
+}
+
+.form-actions button {
+    background: var(--color-brand-700) !important;
+    color: var(--color-neutral-100) !important;
+}
+
+.form-actions button:hover {
+    background: var(--color-brand-800) !important;
+    color: var(--color-neutral-100) !important;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .account-type-tabs {
+        flex-direction: column;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-secondary,
+    .btn-primary {
+        width: 100%;
+    }
+}
+
