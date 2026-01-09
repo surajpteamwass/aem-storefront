@@ -32,7 +32,10 @@ export default async function decorate(block) {
       <div class="search__result-info"></div>
       <div class="search__view-facets"></div>
       <div class="search__facets"></div>
-      <div class="search__product-sort"></div>
+      <div class="search__product-controls">
+        <div class="search__product-sort"></div>
+        <div class="search__product-page-size"></div>
+      </div>
       <div class="search__product-list"></div>
       <div class="search__pagination"></div>
     </div>
@@ -42,6 +45,7 @@ export default async function decorate(block) {
   const $viewFacets = fragment.querySelector('.search__view-facets');
   const $facets = fragment.querySelector('.search__facets');
   const $productSort = fragment.querySelector('.search__product-sort');
+  const $productPageSize = fragment.querySelector('.search__product-page-size');
   const $productList = fragment.querySelector('.search__product-list');
   const $pagination = fragment.querySelector('.search__pagination');
 
@@ -61,7 +65,11 @@ export default async function decorate(block) {
     page,
     sort,
     filter,
+    pageSize,
   } = Object.fromEntries(urlParams.entries());
+
+  const defaultPageSize = 8;
+  const currentPageSize = pageSize ? Number(pageSize) : defaultPageSize;
 
   // Request search based on the page type on block load
   if (config.urlpath) {
@@ -69,7 +77,7 @@ export default async function decorate(block) {
     await search({
       phrase: '', // search all products in the category
       currentPage: page ? Number(page) : 1,
-      pageSize: 8,
+      pageSize: currentPageSize,
       sort: sort ? getSortFromParams(sort) : [{ attribute: 'position', direction: 'DESC' }],
       filter: [
         { attribute: 'categoryPath', eq: config.urlpath }, // Add category filter
@@ -84,7 +92,7 @@ export default async function decorate(block) {
     await search({
       phrase: q || '',
       currentPage: page ? Number(page) : 1,
-      pageSize: 8,
+      pageSize: currentPageSize,
       sort: getSortFromParams(sort),
       filter: [
         { attribute: 'visibility', in: ['Search', 'Catalog, Search'] },
@@ -115,6 +123,44 @@ export default async function decorate(block) {
     })(button);
     return button;
   };
+
+  // Create Page Size Dropdown
+  const pageSizeOptions = [8, 12, 24, 48];
+  const createPageSizeDropdown = () => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'page-size-dropdown';
+
+    const label = document.createElement('label');
+    label.className = 'page-size-label';
+    label.textContent = labels.Global?.ItemsPerPage || 'Items per page:';
+    label.setAttribute('for', 'page-size-select');
+
+    const select = document.createElement('select');
+    select.id = 'page-size-select';
+    select.className = 'page-size-select';
+
+    pageSizeOptions.forEach((size) => {
+      const option = document.createElement('option');
+      option.value = size;
+      option.textContent = size;
+      option.selected = size === currentPageSize;
+      select.appendChild(option);
+    });
+
+    select.addEventListener('change', (e) => {
+      const newPageSize = Number(e.target.value);
+      const url = new URL(window.location.href);
+      url.searchParams.set('pageSize', newPageSize);
+      url.searchParams.set('page', '1'); // Reset to first page when changing page size
+      window.location.href = url.toString();
+    });
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(select);
+    return wrapper;
+  };
+
+  $productPageSize.appendChild(createPageSizeDropdown());
 
   await Promise.all([
     // Sort By
@@ -218,6 +264,10 @@ export default async function decorate(block) {
 
     if (payload.request?.filter) {
       url.searchParams.set('filter', getParamsFromFilter(payload.request.filter));
+    }
+
+    if (payload.request?.pageSize) {
+      url.searchParams.set('pageSize', payload.request.pageSize);
     }
 
     // Update the URL

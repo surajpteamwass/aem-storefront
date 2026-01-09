@@ -30,6 +30,9 @@ export const selectors = Object.freeze({
     placeOrder: '.checkout__place-order',
     giftOptions: '.checkout__gift-options',
     termsAndConditions: '.checkout__terms-and-conditions',
+    deliveryButton: '.checkout-delivery-method__delivery-button',
+    inStorePickupButton: '.checkout-delivery-method__in-store-pickup-button',
+    inStorePickup: '.checkout__in-store-pickup',
     main: '.checkout__main',
     aside: '.checkout__aside',
   },
@@ -67,6 +70,14 @@ export function createCheckoutFragment() {
           <div class="checkout__server-error ${CHECKOUT_BLOCK}"></div>
           <div class="checkout__out-of-stock ${CHECKOUT_BLOCK}"></div>
           <div class="checkout__login ${CHECKOUT_BLOCK}"></div>
+          <div class="checkout__block checkout__delivery-method">
+            <h2 class="checkout__block checkout-delivery-method__title">Delivery Method</h2>
+            <div class="checkout__block checkout-delivery-method__toggle-buttons">
+              <div class="checkout__block checkout-delivery-method__delivery-button"></div>
+              <div class="checkout__block checkout-delivery-method__in-store-pickup-button"></div>
+            </div>
+          </div>
+          <div class="checkout__block checkout__in-store-pickup"></div>
           <div class="checkout__shipping-form ${CHECKOUT_BLOCK}"></div>
           <div class="checkout__bill-to-shipping ${CHECKOUT_BLOCK}"></div>
           <div class="checkout__delivery ${CHECKOUT_BLOCK}"></div>
