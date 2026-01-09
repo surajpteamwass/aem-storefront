@@ -112,6 +112,7 @@ export default async function decorate(block) {
       <div class="product-details__right-column">
         <div class="product-details__header"></div>
         <div class="product-details__price"></div>
+        <div class="product-details__warehouse-availability"></div>
         <div class="product-details__gallery"></div>
         <div class="product-details__short-description"></div>
         <div class="product-details__gift-card-options"></div>
@@ -134,6 +135,7 @@ export default async function decorate(block) {
   const $gallery = fragment.querySelector('.product-details__gallery');
   const $header = fragment.querySelector('.product-details__header');
   const $price = fragment.querySelector('.product-details__price');
+  const $warehouseAvailability = fragment.querySelector('.product-details__warehouse-availability');
   const $galleryMobile = fragment.querySelector('.product-details__right-column .product-details__gallery');
   const $shortDescription = fragment.querySelector('.product-details__short-description');
   const $options = fragment.querySelector('.product-details__options');
@@ -442,6 +444,15 @@ export default async function decorate(block) {
         },
       }));
     }
+
+    // Update warehouse availability when product options change
+    if ($warehouseAvailability) {
+      const configValues = pdpApi.getProductConfigurationValues();
+      const newSku = configValues?.sku || configValues?.variantSku || product?.sku;
+      if (newSku) {
+        resetWarehouseAvailability($warehouseAvailability, newSku);
+      }
+    }
   }, { eager: true });
 
   events.on('wishlist/alert', ({ action, item }) => {
@@ -491,6 +502,11 @@ export default async function decorate(block) {
       document.title = product.name;
     }
   }, { eager: true });
+
+  // Initialize warehouse availability button (lazy load)
+  if (product?.sku && $warehouseAvailability) {
+    initializeWarehouseAvailabilityButton(product.sku, $warehouseAvailability);
+  }
 
   return Promise.resolve();
 }
@@ -639,4 +655,254 @@ function imageSlotConfig(ctx) {
       height: defaultImageProps.height,
     },
   };
+}
+
+/**
+ * Fetches user IP address using a service
+ * @returns {Promise<string>} User IP address or default
+ */
+async function getUserIPAddress() {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.ip || '3.131.150.126';
+    }
+  } catch (error) {
+    console.warn('Failed to fetch user IP:', error);
+  }
+  return '3.131.150.126';
+}
+
+/**
+ * Fetches warehouse availability for a product via GraphQL
+ * @param {string} sku - Product SKU
+ * @param {string} ipAddress - User IP address
+ * @returns {Promise<Object|null>} Warehouse availability data or null on error
+ */
+async function fetchWarehouseAvailability(sku, ipAddress) {
+  try {
+    const { data, errors } = await pdpApi.fetchGraphQl(`
+      query GetProductWithWarehouse($sku: String!, $ipAddress: String!) {
+        productWithWarehouse(sku: $sku, ipAddress: $ipAddress) {
+          sku
+          warehouseAvailability {
+            customer_location {
+              city
+              coordinates {
+                lat
+                lon
+              }
+              country
+              ip
+              postal_code
+              state
+            }
+            product_name
+            sku
+            success
+            timestamp
+            total_available
+            warehouses {
+              address {
+                city
+                postal_code
+                state
+              }
+              distance_miles
+              quantity_available
+              warehouse_id
+              warehouse_name
+            }
+          }
+        }
+      }
+    `, {
+      method: 'POST',
+      variables: { sku, ipAddress },
+    });
+
+    if (errors) {
+      console.error('GraphQL errors:', errors);
+      throw new Error(errors.map((e) => e.message).join(', '));
+    }
+
+    return data?.productWithWarehouse?.warehouseAvailability || null;
+  } catch (error) {
+    console.error('Error fetching warehouse availability:', error);
+    return null;
+  }
+}
+
+/**
+ * Initializes warehouse availability button (lazy load)
+ * @param {string} sku - Product SKU
+ * @param {HTMLElement} container - Container element to render into
+ */
+function initializeWarehouseAvailabilityButton(sku, container) {
+  if (!container || !sku) {
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="warehouse-availability">
+      <div class="warehouse-availability__header">
+        <h3 class="warehouse-availability__title">Warehouse Availability</h3>
+      </div>
+      <div class="warehouse-availability__content">
+        <button type="button" class="warehouse-availability__toggle-btn" aria-expanded="false">
+          <span class="warehouse-availability__toggle-text">Check Warehouse Availability</span>
+          <span class="warehouse-availability__toggle-icon">▼</span>
+        </button>
+        <div class="warehouse-availability__data" style="display: none;"></div>
+      </div>
+    </div>
+  `;
+
+  const toggleBtn = container.querySelector('.warehouse-availability__toggle-btn');
+  const dataContainer = container.querySelector('.warehouse-availability__data');
+  const state = {
+    isLoaded: false,
+    currentSku: sku,
+  };
+
+  toggleBtn.addEventListener('click', async () => {
+    const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+
+    if (!isExpanded && !state.isLoaded) {
+      dataContainer.innerHTML = '<div class="warehouse-availability__loading">Checking availability...</div>';
+      dataContainer.style.display = 'block';
+      toggleBtn.disabled = true;
+
+      try {
+        getUserIPAddress();
+        const warehouseData = await fetchWarehouseAvailability(state.currentSku, '3.131.150.126');
+
+        if (!warehouseData) {
+          dataContainer.innerHTML = '<div class="warehouse-availability__error">Unable to load warehouse availability at this time.</div>';
+          toggleBtn.disabled = false;
+          return;
+        }
+
+        renderWarehouseData(warehouseData, dataContainer);
+        state.isLoaded = true;
+      } catch (error) {
+        console.error('Error loading warehouse availability:', error);
+        dataContainer.innerHTML = '<div class="warehouse-availability__error">Unable to load warehouse availability at this time.</div>';
+      } finally {
+        toggleBtn.disabled = false;
+      }
+    } else {
+      dataContainer.style.display = isExpanded ? 'none' : 'block';
+    }
+
+    const newExpandedState = !isExpanded;
+    toggleBtn.setAttribute('aria-expanded', newExpandedState.toString());
+    const icon = toggleBtn.querySelector('.warehouse-availability__toggle-icon');
+    icon.textContent = newExpandedState ? '▲' : '▼';
+  });
+
+  // Store state and current SKU for reset function
+  container.dataset.currentSku = sku;
+  container.dataset.warehouseState = JSON.stringify(state);
+  container.warehouseState = state;
+}
+
+/**
+ * Resets warehouse availability when product SKU changes
+ * @param {HTMLElement} container - Container element
+ * @param {string} newSku - New product SKU
+ */
+function resetWarehouseAvailability(container, newSku) {
+  if (!container || !newSku) {
+    return;
+  }
+
+  const { currentSku } = container.dataset;
+  if (currentSku === newSku) {
+    return;
+  }
+
+  const toggleBtn = container.querySelector('.warehouse-availability__toggle-btn');
+  const dataContainer = container.querySelector('.warehouse-availability__data');
+
+  if (toggleBtn && dataContainer && container.warehouseState) {
+    // Reset state
+    container.warehouseState.currentSku = newSku;
+    container.warehouseState.isLoaded = false;
+    container.dataset.currentSku = newSku;
+
+    // Reset UI
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    toggleBtn.disabled = false;
+    dataContainer.style.display = 'none';
+    dataContainer.innerHTML = '';
+    const icon = toggleBtn.querySelector('.warehouse-availability__toggle-icon');
+    if (icon) {
+      icon.textContent = '▼';
+    }
+  }
+}
+
+/**
+ * Renders warehouse data into the container
+ * @param {Object} data - Warehouse availability data
+ * @param {HTMLElement} container - Container element
+ */
+function renderWarehouseData(data, container) {
+  if (!data || !container) {
+    return;
+  }
+
+  const warehouses = data.warehouses || [];
+
+  if (warehouses.length === 0) {
+    container.innerHTML = '<div class="warehouse-availability__no-results">No warehouses found within the specified distance.</div>';
+    return;
+  }
+
+  const warehousesList = warehouses.map((warehouse) => {
+    const distance = warehouse.distance_miles ? `${warehouse.distance_miles.toFixed(2)} miles` : 'Distance unknown';
+    const quantityAvailable = warehouse.quantity_available ?? 0;
+    const isAvailable = quantityAvailable > 0;
+    const statusClass = isAvailable ? 'warehouse-availability__item--available' : 'warehouse-availability__item--unavailable';
+
+    let addressText = '';
+    if (warehouse.address && typeof warehouse.address === 'object') {
+      const addressParts = [];
+      if (warehouse.address.city) addressParts.push(warehouse.address.city);
+      if (warehouse.address.state) addressParts.push(warehouse.address.state);
+      if (warehouse.address.postal_code) addressParts.push(warehouse.address.postal_code);
+      addressText = addressParts.filter(Boolean).join(', ');
+    } else if (typeof warehouse.address === 'string') {
+      addressText = warehouse.address;
+    }
+
+    return `
+      <div class="warehouse-availability__item ${statusClass}">
+        <div class="warehouse-availability__item-name">${warehouse.warehouse_name || 'Warehouse'}</div>
+        <div class="warehouse-availability__item-id">${warehouse.warehouse_id ? `ID: ${warehouse.warehouse_id}` : ''}</div>
+        <div class="warehouse-availability__item-details">
+          <span class="warehouse-availability__item-distance">${distance}</span>
+          <span class="warehouse-availability__item-status">${isAvailable ? `Available (${quantityAvailable})` : 'Not Available'}</span>
+        </div>
+        ${addressText ? `<div class="warehouse-availability__item-address">${addressText}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  const totalAvailable = data.total_available !== undefined ? data.total_available : null;
+  const totalAvailableText = totalAvailable !== null ? `<div class="warehouse-availability__total">Total Available: <strong>${totalAvailable}</strong></div>` : '';
+
+  container.innerHTML = `
+    ${totalAvailableText}
+    <div class="warehouse-availability__list">
+      ${warehousesList}
+    </div>
+  `;
 }
