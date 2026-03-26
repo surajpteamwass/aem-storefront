@@ -6,13 +6,13 @@
   overflow-x: auto;
 }
 
-@media (width >= 600px) {
+@media (min-width: 600px) {
   .tabs .tabs-list {
     font-size: var(--body-font-size-s);
   }
 }
 
-@media (width >= 900px) {
+@media (min-width: 900px) {
   .tabs .tabs-list {
     font-size: var(--body-font-size-m);
   }
