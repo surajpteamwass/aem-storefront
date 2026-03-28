@@ -1,0 +1,39 @@
+{
+  "variantName": "hero-banner",
+  "baseBlock": "hero",
+  "version": "1.0.0",
+  "created": "2026-03-28T07:20:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://master-7rqtwti-dtgu53s3tm7ku.us-4.magentosite.cloud/",
+    "originPage": "Magento Hyva theme homepage",
+    "blockPosition": "top"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "dark",
+    "density": "spacious",
+    "purpose": "homepage-hero",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "background-image + H1 + H2 + 2 CTAs",
+    "buttonCount": 2,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "homepage hero banners",
+      "landing pages with background images",
+      "pages with dark overlay hero sections"
+    ],
+    "notSuitableFor": [
+      "text-only hero sections",
+      "minimal hero without images",
+      "product detail pages"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["content/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-03-28T07:20:00.000Z"
+  }
+}

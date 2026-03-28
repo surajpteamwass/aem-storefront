@@ -1,0 +1,39 @@
+{
+  "variantName": "cards-feature",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-03-28T07:20:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://master-7rqtwti-dtgu53s3tm7ku.us-4.magentosite.cloud/",
+    "originPage": "Magento Hyva theme homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "feature-highlight",
+    "imagePattern": "icon"
+  },
+  "contentPattern": {
+    "structure": "icon-image + strong title + paragraph description",
+    "buttonCount": 0,
+    "imageCount": 4
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "feature highlight grids",
+      "value proposition cards",
+      "benefit/differentiator sections"
+    ],
+    "notSuitableFor": [
+      "product listing cards",
+      "article cards with large images",
+      "category navigation"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["content/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-03-28T07:20:00.000Z"
+  }
+}

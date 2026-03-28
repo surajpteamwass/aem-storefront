@@ -1,0 +1,39 @@
+{
+  "variantName": "cards-category",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-03-28T07:20:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://master-7rqtwti-dtgu53s3tm7ku.us-4.magentosite.cloud/",
+    "originPage": "Magento Hyva theme homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "category-navigation",
+    "imagePattern": "icon"
+  },
+  "contentPattern": {
+    "structure": "circular-image + H3 category name + link",
+    "buttonCount": 0,
+    "imageCount": 4
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "category navigation grids",
+      "product category browsing",
+      "icon-based card grids with links"
+    ],
+    "notSuitableFor": [
+      "feature description cards",
+      "article cards with long text",
+      "product listing cards"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["content/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-03-28T07:20:00.000Z"
+  }
+}

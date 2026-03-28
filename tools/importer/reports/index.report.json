@@ -1,0 +1,14 @@
+{
+  "status": "success",
+  "url": "https://master-7rqtwti-dtgu53s3tm7ku.us-4.magentosite.cloud/",
+  "path": "index",
+  "timestamp": "2026-03-28T07:42:17.719Z",
+  "title": "B2B - WassermanPro Demo",
+  "template": "homepage",
+  "blocks": [
+    "hero-banner",
+    "cards-category",
+    "cards-feature",
+    "carousel-article"
+  ]
+}
