@@ -1,0 +1,94 @@
+{
+  "templates": [
+    {
+      "name": "homepage",
+      "urls": [
+        "https://master-7rqtwti-dtgu53s3tm7ku.us-4.magentosite.cloud/"
+      ],
+      "description": "Magento Hyva theme homepage with hero banner, product categories, and promotional content",
+      "blocks": [
+        {
+          "name": "hero-banner",
+          "instances": [
+            ".home-banner"
+          ]
+        },
+        {
+          "name": "cards-category",
+          "instances": [
+            ".container.pt-8.px-8 .category-box"
+          ]
+        },
+        {
+          "name": "cards-feature",
+          "instances": [
+            ".container.py-8.px-8 [data-content-type=\"row\"]"
+          ]
+        },
+        {
+          "name": "carousel-article",
+          "instances": [
+            ".pb-1.top-bottom-padding [data-content-type=\"slider\"]"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "id": "section-1-hero",
+          "name": "Hero Banner",
+          "selector": ".column.main > div[data-content-type=\"block\"]:nth-child(4)",
+          "style": "dark",
+          "blocks": [
+            "hero-banner"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-2-categories",
+          "name": "Shop By Category",
+          "selector": ".column.main > .container.pt-8.px-8",
+          "style": null,
+          "blocks": [
+            "cards-category"
+          ],
+          "defaultContent": [
+            ".container.pt-8.px-8 h2[data-content-type=\"heading\"]",
+            ".container.pt-8.px-8 .home-browse-all"
+          ]
+        },
+        {
+          "id": "section-3-differentiators",
+          "name": "What Makes Us Different",
+          "selector": ".column.main > .container.py-8.px-8",
+          "style": "light",
+          "blocks": [
+            "cards-feature"
+          ],
+          "defaultContent": [
+            ".container.py-8.px-8 h2[data-content-type=\"heading\"]"
+          ]
+        },
+        {
+          "id": "section-4-products",
+          "name": "Popular Products",
+          "selector": ".column.main > .container.home-slider",
+          "style": null,
+          "blocks": [],
+          "defaultContent": [
+            ".container.home-slider h2"
+          ]
+        },
+        {
+          "id": "section-5-knowledge",
+          "name": "Explore Our Knowledge Center",
+          "selector": ".column.main > .pb-1.top-bottom-padding",
+          "style": "light",
+          "blocks": [
+            "carousel-article"
+          ],
+          "defaultContent": []
+        }
+      ]
+    }
+  ]
+}

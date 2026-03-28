@@ -1,0 +1,39 @@
+{
+  "variantName": "carousel-article",
+  "baseBlock": "carousel",
+  "version": "1.0.0",
+  "created": "2026-03-28T07:20:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://master-7rqtwti-dtgu53s3tm7ku.us-4.magentosite.cloud/",
+    "originPage": "Magento Hyva theme homepage",
+    "blockPosition": "bottom"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "article-carousel",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "image + H2 title + paragraphs + Read More link",
+    "buttonCount": 1,
+    "imageCount": 3
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "article/blog carousels",
+      "knowledge center sections",
+      "content showcase with images and text"
+    ],
+    "notSuitableFor": [
+      "product image galleries",
+      "hero banner sliders",
+      "testimonial carousels"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["content/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-03-28T07:20:00.000Z"
+  }
+}
