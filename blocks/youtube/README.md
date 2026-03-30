@@ -4,6 +4,8 @@ Embeds a YouTube video using a **privacy-oriented** `youtube-nocookie.com` ifram
 
 ## Authoring
 
+### Block (table)
+
 Add a **YouTube** block with a single cell containing a normal link to the video (`youtube.com/watch?v=…` or `youtu.be/…`).
 
 | YouTube |
@@ -11,6 +13,10 @@ Add a **YouTube** block with a single cell containing a normal link to the video
 | [Link to your video](https://www.youtube.com/watch?v=VIDEO_ID) |
 
 The first matching link in the block is used (`youtube.com` or `youtu.be`).
+
+### Inline link (author-kit `linkBlocks`)
+
+YouTube links in prose are auto-decorated via `buildLinkBlocksFromMain` in `scripts/scripts.js` (patterns in `linkBlocks`). Links inside a table-authored `div.youtube` wrapper are skipped.
 
 ## Behavior
 
