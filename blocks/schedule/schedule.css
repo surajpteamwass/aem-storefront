@@ -1,0 +1,4 @@
+/* Schedule block: time-window content swap. Link is replaced after load. */
+.schedule.block {
+  min-height: 0;
+}

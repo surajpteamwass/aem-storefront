@@ -22,6 +22,57 @@ import {
 } from './commerce.js';
 
 /**
+ * Author-kit–style `linkBlocks`: URL patterns that auto-run the matching block
+ * on the anchor (see aemsites/author-kit `scripts/scripts.js` + `decorateLink` in ak.js).
+ * `buildLinkBlocksFromMain` implements schedule and youtube; fragments stay in the block below.
+ */
+export const linkBlocks = [
+  { fragment: '/fragments/' },
+  { schedule: '/schedules/' },
+  { youtube: 'https://www.youtube' },
+];
+
+/**
+ * Blocks whose CSS loading is optional in author-kit (`components` array).
+ * Table blocks load CSS via aem.js `loadBlock`; link-init loads CSS explicitly.
+ */
+export const linkBlockSelfStyledComponents = ['fragment', 'schedule'];
+
+/**
+ * Auto-init schedule / youtube anchors (skips links inside table-authored block wrappers).
+ * @param {HTMLElement} main
+ */
+async function buildLinkBlocksFromMain(main) {
+  const codeBase = window.hlx.codeBasePath;
+
+  const scheduleAnchors = [...main.querySelectorAll('a[href*="/schedules/"]')].filter(
+    (a) => !a.closest('div.schedule'),
+  );
+  if (scheduleAnchors.length > 0) {
+    await loadCSS(`${codeBase}/blocks/schedule/schedule.css`);
+    const mod = await import('../blocks/schedule/schedule.js');
+    scheduleAnchors.forEach((a) => {
+      a.classList.add('schedule', 'auto-block');
+    });
+    await Promise.all(scheduleAnchors.map((a) => mod.default(a)));
+  }
+
+  const youtubeAnchors = [...main.querySelectorAll(
+    'a[href*="youtube.com"], a[href*="youtu.be"]',
+  )].filter((a) => !a.closest('div.youtube'));
+  if (youtubeAnchors.length > 0) {
+    await loadCSS(`${codeBase}/blocks/youtube/youtube.css`);
+    const mod = await import('../blocks/youtube/youtube.js');
+    youtubeAnchors.forEach((a) => {
+      a.classList.add('youtube', 'auto-block');
+    });
+    youtubeAnchors.forEach((a) => {
+      mod.default(a);
+    });
+  }
+}
+
+/**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
  */
@@ -75,6 +126,11 @@ function buildAutoBlocks(main) {
         });
       });
     }
+
+    buildLinkBlocksFromMain(main).catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error('Link blocks failed', error);
+    });
 
     buildHeroBlock(main);
   } catch (error) {

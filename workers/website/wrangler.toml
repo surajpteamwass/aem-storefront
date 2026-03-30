@@ -1,0 +1,16 @@
+# Cloudflare Worker: BYO CDN → Edge Delivery origin
+# Deployed URL: https://aem-worker.suraj-prajapat.workers.dev (name + account subdomain)
+# Custom domain (e.g. wasserman-demo-aem.online) must be routed to this Worker in Cloudflare.
+# Helix origin: main--<SITE>--<ORG>.<aem.page|aem.live>
+name = "aem-worker"
+main = "index.js"
+compatibility_date = "2025-02-14"
+keep_vars = true
+
+# Public vars (override in Dashboard / wrangler secret for production)
+# handlers/dasc.js: /dasc/*.json → mhast-html-to-json.adobeaem.workers.dev/live/<ORG>/<SITE>/…
+# Optional: DA_SC_BASE if Adobe changes the delivery URL (see docs.da.live structured content)
+vars = { AEM_ORG = "surajpteamwass", AEM_SITE = "aem-storefront", AEM_EDGE_DOMAIN = "aem.page" }
+
+[env.dev]
+vars = { AEM_ORG = "surajpteamwass", AEM_SITE = "aem-storefront", AEM_EDGE_DOMAIN = "aem.page" }
