@@ -9,3 +9,4 @@ scripts/commerce-events-sdk.js
 plugins/
 cypress/
 tools/importer/*.bundle.js
+workers/
