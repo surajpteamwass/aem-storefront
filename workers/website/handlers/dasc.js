@@ -15,7 +15,7 @@
  * Default host matches DA docs; override with `DA_SC_BASE` in wrangler if Adobe changes it.
  * @see https://docs.da.live/developers/guides/structured-content (Delivery Endpoint)
  */
-const DA_JSON_DELIVERY_DEFAULT = 'https://mhast-html-to-json.adobeaem.workers.dev';
+const DA_JSON_DELIVERY_DEFAULT = 'https://aem-worker.suraj-prajapat.workers.dev';
 
 export default async function fetchDaSc({ url, env, request }) {
   const { AEM_ORG, AEM_SITE } = env;
