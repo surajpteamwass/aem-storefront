@@ -7,7 +7,10 @@ if [ -z "$branch_name" ] || [ "$branch_name" = "HEAD" ]; then
   exit 0
 fi
 
-# Normalize branch names for URL safety (slashes/spaces -> hyphens, lowercase).
-safe_branch=$(printf "%s" "$branch_name" | tr '[:upper:]' '[:lower:]' | tr '/ ' '--')
+# Normalize branch names for URL safety (slashes -> double hyphens, spaces -> hyphens, lowercase).
+safe_branch=$(printf "%s" "$branch_name" | tr '[:upper:]' '[:lower:]' | sed 's/\//-/g' | tr ' ' '-')
 
-echo "AEM preview URL: https://${safe_branch}--aem-storefront--surajpteamwass.aem.page/"
+echo ""
+echo "  Preview : https://${safe_branch}--aem-storefront--surajpteamwass.aem.page/"
+echo "  Live    : https://${safe_branch}--aem-storefront--surajpteamwass.aem.live/"
+echo ""
