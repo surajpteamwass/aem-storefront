@@ -6,6 +6,13 @@
         "node_modules/@adobe-commerce/commerce-extensibility-tools/index.js"
       ],
       "env": {}
+    },
+    "da-tools": {
+      "command": "node",
+      "args": [
+        "tools/da-mcp/index.js"
+      ],
+      "env": {}
     }
   }
 }
