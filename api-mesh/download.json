@@ -1,0 +1,94 @@
+{
+  "meshConfig": {
+    "files": [
+      {
+        "path": "./schemas/wh-request.json",
+        "content": "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"type\":\"object\",\"properties\":{\"sku\":{\"type\":\"string\"},\"ipAddress\":{\"type\":\"string\"}},\"required\":[\"sku\",\"ipAddress\"]}"
+      },
+      {
+        "path": "./schemas/warehouse-response.json",
+        "content": "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"type\":\"object\",\"properties\":{\"customer_location\":{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"},\"coordinates\":{\"type\":\"object\",\"properties\":{\"lat\":{\"type\":\"number\"},\"lon\":{\"type\":\"number\"}},\"required\":[\"lat\",\"lon\"]},\"country\":{\"type\":\"string\"},\"ip\":{\"type\":\"string\"},\"is_default\":{\"type\":\"boolean\"},\"postal_code\":{\"type\":\"string\"},\"state\":{\"type\":\"string\"}},\"required\":[\"city\",\"coordinates\",\"country\",\"ip\",\"is_default\",\"postal_code\",\"state\"]},\"product_name\":{\"type\":\"string\"},\"sku\":{\"type\":\"string\"},\"success\":{\"type\":\"boolean\"},\"timestamp\":{\"type\":\"string\"},\"total_available\":{\"type\":\"number\"},\"warehouses\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"address\":{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"},\"postal_code\":{\"type\":\"string\"},\"state\":{\"type\":\"string\"}},\"required\":[\"city\",\"postal_code\",\"state\"]},\"distance_miles\":{\"type\":\"number\"},\"quantity_available\":{\"type\":\"number\"},\"warehouse_id\":{\"type\":\"string\"},\"warehouse_name\":{\"type\":\"string\"}},\"required\":[\"address\",\"distance_miles\",\"quantity_available\",\"warehouse_id\",\"warehouse_name\"]}}},\"required\":[\"customer_location\",\"product_name\",\"sku\",\"success\",\"timestamp\",\"total_available\",\"warehouses\"]}"
+      },
+      {
+        "path": "./resolvers.js",
+        "content": "\nmodule.exports={resolvers:{Query:{productWithWarehouse:{resolve:async(root,args,context,info)=>{try{if(!args.sku||args.sku.trim()===''||!args.ipAddress||args.ipAddress.trim()===''||!context.MyRuntimeAction||!context.MyRuntimeAction.rawSource||!context.MyRuntimeAction.rawSource.handler||!context.MyRuntimeAction.rawSource.handler.config||!context.MyRuntimeAction.rawSource.handler.config.baseUrl){return null;}\nlet warehouseData=null;try{const handlerConfig=context.MyRuntimeAction?.rawSource?.handler?.config;const url=handlerConfig?.baseUrl;if(context.logger){context.logger.log('Request body:',JSON.stringify({sku:args.sku,ipAddress:args.ipAddress||\"3.131.150.126\"}));}\nconst CLIENT_ID=context.secrets?.SERVICE_CLIENT_ID;const CLIENT_SECRET=context.secrets?.SERVICE_CLIENT_SECRET;const SCOPES=context.secrets?.SCOPES||'AdobeID,openid,read_organizations';const tokenCacheKey=context.secrets?.TOKEN_CACHE_KEY||'adobe_ims_token';const tokenCacheTtl=context.secrets?.TOKEN_CACHE_TTL||82800;const tokenExchangeUrl=context.secrets?.TOKEN_EXCHANGE_URL||'https://ims-na1.adobelogin.com/ims/token/v3';if(!CLIENT_ID||!CLIENT_SECRET){if(context.logger){context.logger.error('OAuth credentials not found in handler config. Check SERVICE_CLIENT_ID and SERVICE_CLIENT_SECRET in mesh.json.');}\nreturn{sku:args.sku,warehouseAvailability:null};}\nlet accessToken=null;if(context.state){const cachedToken=await context.state.get(tokenCacheKey);if(cachedToken){accessToken=JSON.parse(cachedToken);if(context.logger){context.logger.log('Using cached access token');}}}\nif(!accessToken){if(context.logger){context.logger.log('Exchanging OAuth credentials for access token');}\nconst tokenResponse=await globalThis.fetch(tokenExchangeUrl,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'client_credentials',client_id:CLIENT_ID,client_secret:CLIENT_SECRET,scope:SCOPES})});if(!tokenResponse.ok){const errorText=await tokenResponse.text();if(context.logger){context.logger.error('Token exchange failed:',tokenResponse.status,errorText);}\nreturn{sku:args.sku,warehouseAvailability:null};}\nconst tokenData=await tokenResponse.json();accessToken=tokenData.access_token;if(context.state&&accessToken){await context.state.put(tokenCacheKey,JSON.stringify(accessToken),{ttl:tokenCacheTtl});}}\nconst originHeader=context.secrets.ALLOWED_ORIGINS;const IMS_ORG_ID=context.secrets?.IMS_ORG_ID;if(!IMS_ORG_ID){if(context.logger){context.logger.error('IMS_ORG_ID not found in secrets. Add IMS_ORG_ID to secrets.yaml');}\nreturn{sku:args.sku,warehouseAvailability:null};}\nconst headers={'Content-Type':'application/json','Authorization':`Bearer ${accessToken}`,'x-api-key':CLIENT_ID,'x-gw-ims-org-id':IMS_ORG_ID,'Origin':originHeader};const response=await globalThis.fetch(url,{method:'POST',headers:headers,body:JSON.stringify({sku:args.sku,ipAddress:args.ipAddress||\"3.131.150.126\"})});if(response.ok){warehouseData=await response.json();}else{const errorText=await response.text();if(context.logger){context.logger.error('Warehouse lookup failed:',response.status,errorText);}}}catch(error){if(context.logger){context.logger.error('Warehouse lookup error:',error.message);}}\nreturn{sku:args.sku,warehouseAvailability:warehouseData};}catch(error){if(context.responseConfig?.includeHTTPDetails){console.error('Product with warehouse error:',error.message);}\nreturn null;}},},},},};"
+      }
+    ],
+    "responseConfig": {
+      "includeHTTPDetails": false,
+      "CORS": {
+        "credentials": true,
+        "maxAge": 60480,
+        "exposedHeaders": [
+          "Content-Range",
+          "X-Content-Range"
+        ],
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "origin": [
+          "https://www.wasserman-demo-aem.online",
+          "http://localhost:3000"
+        ]
+      }
+    },
+    "state": {
+      "enabled": true
+    },
+    "sources": [
+      {
+        "name": "CatalogServiceGraphQL",
+        "handler": {
+          "graphql": {
+            "endpoint": "https://www.aemshop.net/cs-graphql",
+            "operationHeaders": {
+              "Magento-Store-View-Code": "default",
+              "Magento-Website-Code": "base",
+              "Magento-Store-Code": "main_website_store",
+              "Magento-Environment-Id": "f38a0de0-764b-41fa-bd2c-5bc2f3c7b39a",
+              "x-api-key": "4dfa19c9fe6f4cccade55cc5b3da94f7",
+              "Magento-Customer-Group": "b6589fc6ab0dc82cf12099d1c2d40ab994e8410c"
+            },
+            "schemaHeaders": {
+              "x-api-key": "4dfa19c9fe6f4cccade55cc5b3da94f7"
+            },
+            "useGETForQueries": true
+          }
+        },
+        "responseConfig": {
+          "headers": [
+            "X-Magento-Cache-Id"
+          ]
+        }
+      },
+      {
+        "name": "MyRuntimeAction",
+        "handler": {
+          "JsonSchema": {
+            "baseUrl": "https://1841301-553gainsborohornet-stage.adobeioruntime.net/api/v1/web/warehouse-app/warehouse-lookup",
+            "operations": [
+              {
+                "path": "/warehouse-lookup",
+                "responseSchema": "./schemas/warehouse-response.json",
+                "requestSchema": "./schemas/wh-request.json",
+                "type": "Query",
+                "field": "warehouseLookup",
+                "method": "POST"
+              }
+            ],
+            "operationHeaders": {
+              "Content-Type": "application/json"
+            }
+          }
+        }
+      }
+    ],
+    "additionalTypeDefs": [
+      "extend type Query { productWithWarehouse(sku: String!, ipAddress: String): ProductWithWarehouse } type ProductWithWarehouse { sku: String name: String warehouseAvailability: WarehouseAvailability } type WarehouseAvailability { customer_location: CustomerLocation product_name: String sku: String success: Boolean timestamp: String total_available: Int warehouses: [Warehouse] } type CustomerLocation { city: String coordinates: Coordinates country: String ip: String is_default: Boolean postal_code: String state: String } type Coordinates { lat: Float lon: Float } type Warehouse { address: WarehouseAddress distance_miles: Float quantity_available: Int warehouse_id: String warehouse_name: String } type WarehouseAddress { city: String postal_code: String state: String }"
+    ],
+    "additionalResolvers": [
+      "./resolvers.js"
+    ]
+  }
+}
