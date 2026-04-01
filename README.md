@@ -48,6 +48,16 @@ Recommended naming:
 - `bugfix/<name>`
 - `hotfix/<name>`
 
+### Mandatory steps before push/commit
+
+Run from the project root before you push or open a PR (same list as `mendatory-steps-before-push-commit`):
+
+```bash
+npm run lint:js
+npm run lint
+npm run lint:fix
+```
+
 ### 3) Local Installation
 
 ```bash
