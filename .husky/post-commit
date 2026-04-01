@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# Show the AEM preview URL for the current branch after each commit.
+branch_name=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+if [ -z "$branch_name" ] || [ "$branch_name" = "HEAD" ]; then
+  exit 0
+fi
+
+# Normalize branch names for URL safety (slashes/spaces -> hyphens, lowercase).
+safe_branch=$(printf "%s" "$branch_name" | tr '[:upper:]' '[:lower:]' | tr '/ ' '--')
+
+echo "AEM preview URL: https://${safe_branch}--aem-storefront--surajpteamwass.aem.page/"
