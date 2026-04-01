@@ -6,17 +6,22 @@ import daUpload from './da-upload.js';
 const TOOLS = [
   {
     name: 'da-upload',
-    description: 'Upload HTML content files to Adobe Document Authoring (DA) for your AEM EDS site. Automatically retrieves the IMS Bearer token from aio CLI.',
+    description: [
+      'Upload HTML content files to Adobe Document Authoring (DA) via admin.da.live.',
+      'Optionally trigger AEM preview (.aem.page) and publish (.aem.live) after upload.',
+      'IMS Bearer token is auto-fetched from aio CLI — no manual token needed.',
+      'Use this to push content so Lighthouse / PSI can audit it.',
+    ].join(' '),
     inputSchema: {
       type: 'object',
       properties: {
         files: {
           type: 'array',
-          description: 'Files to upload. Each entry needs a source (local path) and target (DA path).',
+          description: 'Files to upload. Each entry needs source (local path) and target (DA path).',
           items: {
             type: 'object',
             properties: {
-              source: { type: 'string', description: 'Local file path (e.g. content/index.plain.html)' },
+              source: { type: 'string', description: 'Local file path  (e.g. content/index.plain.html)' },
               target: { type: 'string', description: 'Target path in DA (e.g. index.html)' },
             },
             required: ['source', 'target'],
@@ -31,6 +36,21 @@ const TOOLS = [
           type: 'string',
           description: 'GitHub repo name (e.g. aem-storefront)',
           default: 'aem-storefront',
+        },
+        branch: {
+          type: 'string',
+          description: 'Branch to preview/publish on (e.g. main, development)',
+          default: 'main',
+        },
+        preview: {
+          type: 'boolean',
+          description: 'Trigger AEM preview (admin.aem.page) after upload. Default: true',
+          default: true,
+        },
+        publish: {
+          type: 'boolean',
+          description: 'Trigger AEM publish (admin.aem.page/live) after upload. Default: false',
+          default: false,
         },
       },
       required: ['files', 'org', 'repo'],
