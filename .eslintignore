@@ -10,3 +10,4 @@ plugins/
 cypress/
 tools/importer/*.bundle.js
 workers/
+api-mesh/
