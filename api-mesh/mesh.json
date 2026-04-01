@@ -1,0 +1,65 @@
+{
+	"meshConfig": {
+		"responseConfig": {
+			"CORS": {
+				"credentials": true,
+				"exposedHeaders": ["Content-Range", "X-Content-Range"],
+				"maxAge": 60480,
+				"methods": ["GET", "POST"],
+				"origin": ["https://www.wasserman-demo-aem.online", "http://localhost:3000", "https://main--aem-storefront--surajpteamwass.aem.page", "https://main--aem-storefront--surajpteamwass.aem.live"]
+			},
+			"includeHTTPDetails": false
+		},
+		"state": {
+			"enabled": true
+		},
+		"sources": [
+			{
+				"name": "CatalogServiceGraphQL",
+				"handler": {
+				  "graphql": {
+					"endpoint": "{{env.CATALOG_SERVICE_GRAPHQL_ENDPOINT}}",
+					"useGETForQueries": true,
+					"operationHeaders": {
+					  "Magento-Environment-Id": "f38a0de0-764b-41fa-bd2c-5bc2f3c7b39a",
+					  "Magento-Website-Code": "base",
+					  "Magento-Store-View-Code": "default",
+					  "Magento-Store-Code": "main_website_store",
+					  "Magento-Customer-Group": "b6589fc6ab0dc82cf12099d1c2d40ab994e8410c",
+					  "x-api-key": "4dfa19c9fe6f4cccade55cc5b3da94f7"
+					},
+					"schemaHeaders": {
+					  "x-api-key": "4dfa19c9fe6f4cccade55cc5b3da94f7"
+					}
+				  }
+				},
+				"responseConfig": {
+				  "headers": ["X-Magento-Cache-Id"]
+				}
+			},
+			{
+				"name": "MyRuntimeAction",
+				"handler": {
+					"JsonSchema": {
+						"baseUrl": "{{env.WAREHOUSE_BASE_URL}}",
+						"operations": [
+							{
+								"type": "Query",
+								"field": "warehouseLookup",
+								"path": "/warehouse-lookup",
+								"method": "POST",
+								"requestSchema": "./schemas/wh-request.json",
+								"responseSchema": "./schemas/warehouse-response.json"
+							}
+						],
+						"operationHeaders": {
+							"Content-Type": "application/json"
+						}
+					}
+				}
+			}
+		],
+		"additionalTypeDefs": ["extend type Query { productWithWarehouse(sku: String!, ipAddress: String): ProductWithWarehouse } type ProductWithWarehouse { sku: String name: String warehouseAvailability: WarehouseAvailability } type WarehouseAvailability { customer_location: CustomerLocation product_name: String sku: String success: Boolean timestamp: String total_available: Int warehouses: [Warehouse] } type CustomerLocation { city: String coordinates: Coordinates country: String ip: String is_default: Boolean postal_code: String state: String } type Coordinates { lat: Float lon: Float } type Warehouse { address: WarehouseAddress distance_miles: Float quantity_available: Int warehouse_id: String warehouse_name: String } type WarehouseAddress { city: String postal_code: String state: String }"],
+   	 	"additionalResolvers": ["./resolvers.js"]
+	}
+}

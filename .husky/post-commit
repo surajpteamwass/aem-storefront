@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+
+# Show the AEM preview URL for the current branch after each commit.
+branch_name=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+if [ -z "$branch_name" ] || [ "$branch_name" = "HEAD" ]; then
+  exit 0
+fi
+
+# Normalize branch names for URL safety (slashes -> double hyphens, spaces -> hyphens, lowercase).
+safe_branch=$(printf "%s" "$branch_name" | tr '[:upper:]' '[:lower:]' | sed 's/\//-/g' | tr ' ' '-')
+
+BOLD="\033[1m"
+GREEN="\033[0;32m"
+CYAN="\033[0;36m"
+YELLOW="\033[0;33m"
+RESET="\033[0m"
+
+commit_hash=$(git rev-parse --short HEAD 2>/dev/null)
+commit_msg=$(git log -1 --pretty=%s 2>/dev/null)
+
+printf "\n"
+printf "${BOLD}${GREEN}  ✔ Commit successful!${RESET}\n"
+printf "${YELLOW}  ─────────────────────────────────────────────────────${RESET}\n"
+printf "  ${BOLD}Branch  :${RESET} ${CYAN}${branch_name}${RESET}\n"
+printf "  ${BOLD}Commit  :${RESET} ${CYAN}${commit_hash}${RESET}  ${commit_msg}\n"
+printf "${YELLOW}  ─────────────────────────────────────────────────────${RESET}\n"
+printf "  ${BOLD}Preview :${RESET} ${CYAN}https://${safe_branch}--aem-storefront--surajpteamwass.aem.page/${RESET}\n"
+printf "  ${BOLD}Live    :${RESET} ${CYAN}https://${safe_branch}--aem-storefront--surajpteamwass.aem.live/${RESET}\n"
+printf "${YELLOW}  ─────────────────────────────────────────────────────${RESET}\n"
+printf "\n"
